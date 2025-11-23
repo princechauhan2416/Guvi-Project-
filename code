@@ -1,0 +1,160 @@
+import java.util.*;
+
+class Recipe {
+    private String title;
+    private String ingredients;
+    private String instructions;
+    private String author;
+
+    public Recipe(String title, String ingredients, String instructions, String author) {
+        this.title = title;
+        this.ingredients = ingredients;
+        this.instructions = instructions;
+        this.author = author;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void displayRecipe() {
+        System.out.println("\n==== " + title + " ====");
+        System.out.println("Author: " + author);
+        System.out.println("Ingredients:\n" + ingredients);
+        System.out.println("Instructions:\n" + instructions);
+    }
+}
+
+class User {
+    private String username;
+    private List<Recipe> userRecipes = new ArrayList<>();
+
+    public User(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void addRecipe(Recipe recipe) {
+        userRecipes.add(recipe);
+    }
+
+    public List<Recipe> getRecipes() {
+        return userRecipes;
+    }
+}
+
+class RecipePlatform {
+    private Map<String, User> users = new HashMap<>();
+    private List<Recipe> recipeList = new ArrayList<>();
+
+    public User registerUser(String username) {
+        if (!users.containsKey(username)) {
+            users.put(username, new User(username));
+        }
+        return users.get(username);
+    }
+
+    public void addRecipe(User user, String title, String ingredients, String instructions) {
+        Recipe recipe = new Recipe(title, ingredients, instructions, user.getUsername());
+        user.addRecipe(recipe);
+        recipeList.add(recipe);
+        System.out.println("Recipe added successfully!");
+    }
+
+    public void viewAllRecipes() {
+        if (recipeList.isEmpty()) {
+            System.out.println("No recipes available.");
+            return;
+        }
+        for (Recipe r : recipeList) {
+            r.displayRecipe();
+        }
+    }
+
+    public void searchRecipe(String keyword) {
+        boolean found = false;
+        for (Recipe r : recipeList) {
+            if (r.getTitle().toLowerCase().contains(keyword.toLowerCase())) {
+                r.displayRecipe();
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No recipe found with that keyword.");
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        RecipePlatform platform = new RecipePlatform();
+
+        System.out.print("Enter your username: ");
+        String username = sc.nextLine();
+        User currentUser = platform.registerUser(username);
+
+        while (true) {
+            System.out.println("\n--- Online Recipe Sharing Platform ---");
+            System.out.println("1. Add Recipe");
+            System.out.println("2. View All Recipes");
+            System.out.println("3. Search Recipe");
+            System.out.println("4. View My Recipes");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter recipe title: ");
+                    String title = sc.nextLine();
+
+                    System.out.print("Enter ingredients: ");
+                    String ingredients = sc.nextLine();
+
+                    System.out.print("Enter instructions: ");
+                    String instructions = sc.nextLine();
+
+                    platform.addRecipe(currentUser, title, ingredients, instructions);
+                    break;
+
+                case 2:
+                    platform.viewAllRecipes();
+                    break;
+
+                case 3:
+                    System.out.print("Enter keyword to search: ");
+                    String key = sc.nextLine();
+                    platform.searchRecipe(key);
+                    break;
+
+                case 4:
+                    List<Recipe> myRecipes = currentUser.getRecipes();
+                    if (myRecipes.isEmpty()) {
+                        System.out.println("You haven't added any recipes.");
+                    } else {
+                        for (Recipe r : myRecipes) {
+                            r.displayRecipe();
+                        }
+                    }
+                    break;
+
+                case 5:
+                    System.out.println("Exiting... Thank you for using the platform!");
+                    return;
+
+                default:
+                    System.out.println("Invalid choice, try again.");
+            }
+        }
+    }
+}
